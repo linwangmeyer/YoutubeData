@@ -263,3 +263,4 @@ plt.show()
 subset_df = df[selected_columns]
 sns.pairplot(subset_df)
 plt.show()
+
