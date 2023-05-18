@@ -78,7 +78,7 @@
 - Log-transform data to make them have normal distributions
 - Visualize the relationship between variables, separated by categories
 
-<img src="reports/figures/fig10-scatterplot-bycategory.png" alt="f10" width="400">
+<img src="reports/figures/fig9-scatterplot-bycategory.png" alt="f10" width="400">
 
 ### 4b: Feature generation
 
