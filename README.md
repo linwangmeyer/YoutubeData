@@ -1,3 +1,5 @@
+# README
+
 ## Step 1: Data Extraction
 
 - Purpose: Extract my personal YouTube viewing history data from the downloaded HTML file provided by YouTube. See here for [how](https://webapps.stackexchange.com/questions/101263/how-can-i-export-youtubes-personal-history) to download it.
@@ -18,26 +20,18 @@
 **Viewing Habits:**
 
 - Calculate and visualize the average count of videos watched per month for each year.
-
-—> Insights: A significant increase in the average count of videos watched per month in 2017 and a continued rise from 2022 onwards.
-
+    - Insights: A significant increase in the average count of videos watched per month in 2017 and a continued rise from 2022 onwards.
 - Determine the average count of videos watched based on the hour of the day.
-
-—> Insights: My viewing patterns had three peaks: early morning for yoga, midday during my lunch break, and late evening before bedtime.
-
+    - Insights: My viewing patterns had three peaks: early morning for yoga, midday during my lunch break, and late evening before bedtime.
 - Identify the top channels I have watched since 2016 and visualize their counts.
-
-—> Insights: The channels I watched the most belonged to self-development, yoga, education, and nursery songs categories.
+    - Insights: The channels I watched the most belonged to self-development, yoga, education, and nursery songs categories.
 
 **Video Distribution:**
 
 - Visualize the distribution of video counts across different hours of the day for specific YouTube channels.
-
-—> Insights: Specific hours of the day were associated with different video categories: yoga in the early morning, self-development in the afternoon, children's content in the evening, and statistics study in the late evening.
-
+    - Insights: Specific hours of the day were associated with different video categories: yoga in the early morning, self-development in the afternoon, children's content in the evening, and statistics study in the late evening.
 - Create a word cloud to visualize the frequency of video titles
-
-—> Insights: The most frequently watched videos were related to yoga, followed by workout-related content.
+    - Insights: The most frequently watched videos were related to yoga, followed by workout-related content.
 
 ### Purpose 2: Explore and analyze the YouTube metadata to gain insights into the features of the data.
 
@@ -54,8 +48,7 @@
 **Changing Video Categories:**
 
 - Visualize how the video categories change over the years
-
-—> Insight: Over time, my video categories shifted, with a focus on yoga in the early morning, educational videos during and after work hours (particularly on statistical analysis and data science), and music in the morning and evening for background and entertaining my son.
+    - Insight: Over time, my video categories shifted, with a focus on yoga in the early morning, educational videos during and after work hours (particularly on statistical analysis and data science), and music in the morning and evening for background and entertaining my son.
 
 ### Summary of my personal data
 
@@ -92,10 +85,6 @@
 - The log-transformed features together with the categorical information can best predict the testing data.
 
 ### 4d: Feature extraction: Identify the most important features
-
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/a315f997-6590-4417-b55c-247f6788551a/Untitled.png)
-
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/a61df083-7453-466b-a5ce-e9d9c9c0c480/Untitled.png)
 
 **Higher Likability Categories:**
 
