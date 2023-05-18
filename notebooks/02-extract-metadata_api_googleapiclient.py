@@ -16,7 +16,7 @@ youtube_api_key = os.getenv('API_KEY')
 df = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/mydata.csv')
 df.info()
 
-# Only examine the top 10 viewed videos
+# Get meta data for every video
 video_ID = df['Video URL'].str.split('v=').str[1]
 video_id_list = list(set(video_ID.to_list()))
 
@@ -92,7 +92,36 @@ for category_id in uni_category_ids:
     if 'items' in response:
         category_names[category_id] = response['items'][0]['snippet']['title']
 
-# get the category name for each video
+
+################################################
+# Get subscriber count information for each channel
+channelIDs = list(set(channel_ids))
+subscriber_counts = []
+for channel_id in channelIDs:
+    try:
+        # Retrieve channel statistics using channels().list() method
+        channel_response = youtube.channels().list(
+            part='statistics',
+            id=channel_id
+        ).execute()
+        
+        if 'items' in channel_response and channel_response['items']:
+            channel_data = channel_response['items'][0]
+            subscriber_count = channel_data['statistics'].get('subscriberCount', 0)
+            subscriber_counts.append(subscriber_count)
+        else:
+            subscriber_counts.append(0)
+            
+    except HttpError as e:
+        print(f"An error occurred for channel ID: {channel_id}")
+        print(f"Error message: {e}")
+
+# Assign the subscriber counts to a new column in the DataFrame
+df_subscriber = pd.DataFrame({"ChannelID": channelIDs,
+                            "SubscriberCount": subscriber_counts})
+
+##########################################
+# get the category name for each video, number of subscribers for each channel
 category_name_list = [category_names.get(category_id, 'N/A') for category_id in category_ids]
 data = {
     "VideoID": video_ids,
@@ -110,6 +139,7 @@ data = {
 df_meta = pd.DataFrame(data).reset_index()
 df_meta['Duration'] = pd.to_timedelta(df_meta['Duration']).dt.total_seconds()
 df_meta.to_csv('/Users/linwang/Documents/YoutubeData/data/processed/video_meta_data.csv',index=False)
+
 
 ################################################
 df_meta = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/video_meta_data.csv')
@@ -207,4 +237,29 @@ plt.xlabel('Category')
 plt.ylabel('Mean Ratio')
 plt.title('Ratio Differences Across Categories')
 plt.xticks(rotation=45,ha='right')
+plt.show()
+
+
+################################################
+df = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/merged_data.csv')
+df.info()
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+selected_columns = ['SubscriberCount', 'ViewCount', 'LikeCount', 'DislikeCount', 'Duration']
+subset_df = df[selected_columns]
+fig, axes = plt.subplots(nrows=len(selected_columns), figsize=(8, 10))
+for i, column in enumerate(selected_columns):
+    sns.histplot(data=subset_df, x=column, kde=True, ax=axes[i])
+    axes[i].set_xlabel(column)
+    axes[i].set_ylabel('Frequency')
+plt.tight_layout()
+plt.savefig('fig9-data-distribution.png')
+plt.show()
+
+  
+# visualize pairwise relationship
+subset_df = df[selected_columns]
+sns.pairplot(subset_df)
 plt.show()
