@@ -26,6 +26,12 @@
 - Identify the top channels I have watched since 2016 and visualize their counts.
     - Insights: The channels I watched the most belonged to self-development, yoga, education, and nursery songs categories.
 
+<img src="reports/figures/fig1-countbyyear.png" alt="countbychannel" width="400"> <img src="reports/figures/fig2-countbyhour.png" alt="countbychannel" width="400">
+
+<img src="reports/figures/fig3-countbychannel.png" alt="countbychannel" width="400"> <img src="reports/figures/fig4-countbychannel_hour.png" alt="countbychannel" width="400">
+
+<img src="reports/figures/fig5-videoname-wordcloud.png" alt="countbychannel" width="400"> <img src="reports/figures/fig6-topcategory.png" alt="countbychannel" width="400">
+
 **Video Distribution:**
 
 - Visualize the distribution of video counts across different hours of the day for specific YouTube channels.
@@ -44,6 +50,10 @@
     - The video categories I watched for educational purposes increased notably in 2020, 2022, and 2023.
     - People & Blogs category showed a similar trend.
     - I also listened to music on YouTube in 2017.
+
+
+<img src="reports/figures/fig7-topcategory-year.png" alt="countbychannel" width="400"> <img src="reports/figures/fig8-topcategory-hour.png" alt="countbychannel" width="400">
+
 
 **Changing Video Categories:**
 
@@ -65,6 +75,8 @@
 - Additional data clean: remove data points that have too many or too few view counts, too many like counts, too long or zero duration, zero or too few likes (probably the video turned off the comment button)
 - Log-transform data to make them have normal distributions
 - Visualize the relationship between variables, separated by categories
+
+<img src="reports/figures/fig10-scatterplot-bycategory.png" alt="countbychannel" width="400">
 
 ### 4b: Feature generation
 
