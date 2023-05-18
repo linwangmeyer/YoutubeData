@@ -26,11 +26,11 @@
 - Identify the top channels I have watched since 2016 and visualize their counts.
     - Insights: The channels I watched the most belonged to self-development, yoga, education, and nursery songs categories.
 
-<img src="reports/figures/fig1-countbyyear.png" alt="countbychannel" width="400"> <img src="reports/figures/fig2-countbyhour.png" alt="countbychannel" width="400">
+<img src="reports/figures/fig1-countbyyear.png" alt="f1" width="400"> <img src="reports/figures/fig2-countbyhour.png" alt="f2" width="400">
 
-<img src="reports/figures/fig3-countbychannel.png" alt="countbychannel" width="400"> <img src="reports/figures/fig4-countbychannel_hour.png" alt="countbychannel" width="400">
+<img src="reports/figures/fig3-countbychannel.png" alt="f3" width="400"> <img src="reports/figures/fig4-countbychannel_hour.png" alt="f4" width="400">
 
-<img src="reports/figures/fig5-videoname-wordcloud.png" alt="countbychannel" width="400"> <img src="reports/figures/fig6-topcategory.png" alt="countbychannel" width="400">
+<img src="reports/figures/fig5-videoname-wordcloud.png" alt="f5" width="400"> <img src="reports/figures/fig6-topcategory.png" alt="f6" width="400">
 
 **Video Distribution:**
 
@@ -52,7 +52,7 @@
     - I also listened to music on YouTube in 2017.
 
 
-<img src="reports/figures/fig7-topcategory-year.png" alt="countbychannel" width="400"> <img src="reports/figures/fig8-topcategory-hour.png" alt="countbychannel" width="400">
+<img src="reports/figures/fig7-topcategory-year.png" alt="f7" width="400"> <img src="reports/figures/fig8-topcategory-hour.png" alt="f8" width="400">
 
 
 **Changing Video Categories:**
@@ -76,7 +76,7 @@
 - Log-transform data to make them have normal distributions
 - Visualize the relationship between variables, separated by categories
 
-<img src="reports/figures/fig10-scatterplot-bycategory.png" alt="countbychannel" width="400">
+<img src="reports/figures/fig10-scatterplot-bycategory.png" alt="f10" width="400">
 
 ### 4b: Feature generation
 
