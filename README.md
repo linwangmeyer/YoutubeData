@@ -23,14 +23,13 @@
     - Insights: A significant increase in the average count of videos watched per month in 2017 and a continued rise from 2022 onwards.
 - Determine the average count of videos watched based on the hour of the day.
     - Insights: My viewing patterns had three peaks: early morning for yoga, midday during my lunch break, and late evening before bedtime.
+    
+  <img src="reports/figures/fig1-countbyyear.png" alt="f1" width="400"> <img src="reports/figures/fig2-countbyhour.png" alt="f2" width="400">
+
 - Identify the top channels I have watched since 2016 and visualize their counts.
     - Insights: The channels I watched the most belonged to self-development, yoga, education, and nursery songs categories.
 
-<img src="reports/figures/fig1-countbyyear.png" alt="f1" width="400"> <img src="reports/figures/fig2-countbyhour.png" alt="f2" width="400">
-
 <img src="reports/figures/fig3-countbychannel.png" alt="f3" width="400"> <img src="reports/figures/fig4-countbychannel_hour.png" alt="f4" width="400">
-
-<img src="reports/figures/fig5-videoname-wordcloud.png" alt="f5" width="400"> <img src="reports/figures/fig6-topcategory.png" alt="f6" width="400">
 
 **Video Distribution:**
 
@@ -38,6 +37,9 @@
     - Insights: Specific hours of the day were associated with different video categories: yoga in the early morning, self-development in the afternoon, children's content in the evening, and statistics study in the late evening.
 - Create a word cloud to visualize the frequency of video titles
     - Insights: The most frequently watched videos were related to yoga, followed by workout-related content.
+
+<img src="reports/figures/fig5-videoname-wordcloud.png" alt="f5" width="400"> <img src="reports/figures/fig6-topcategory.png" alt="f6" width="400">
+
 
 ### Purpose 2: Explore and analyze the YouTube metadata to gain insights into the features of the data.
 
