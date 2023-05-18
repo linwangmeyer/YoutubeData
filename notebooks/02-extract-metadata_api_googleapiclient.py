@@ -241,11 +241,11 @@ plt.show()
 
 
 ################################################
-df = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/merged_data.csv')
+df = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/data-formodel.csv')
 df.info()
 
-import seaborn as sns
-import matplotlib.pyplot as plt
+unique_rows = df.drop_duplicates(subset=['VideoID'], keep='first')
+df_m = unique_rows[['VideoTitle', 'SubscriberCount', 'ViewCount', 'LikeCount', 'DislikeCount', 'Duration', 'LikeViewRatio']]
 
 selected_columns = ['SubscriberCount', 'ViewCount', 'LikeCount', 'DislikeCount', 'Duration']
 subset_df = df[selected_columns]
@@ -264,3 +264,4 @@ subset_df = df[selected_columns]
 sns.pairplot(subset_df)
 plt.show()
 
+np.exp(-20)
