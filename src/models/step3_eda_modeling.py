@@ -22,7 +22,7 @@ df = pd.read_csv('merged_data.csv')
 """
 
 unique_rows = df.drop_duplicates(subset=['VideoID'], keep='first')
-df = unique_rows[['VideoTitle', 'CategoryName', 'SubscriberCount', 'ViewCount', 'LikeCount', 'DislikeCount', 'Duration', 'LikeViewRatio']]
+df = unique_rows[['TitleClean', 'VideoTitle', 'CategoryName', 'SubscriberCount', 'ViewCount', 'LikeCount', 'DislikeCount', 'Duration', 'LikeViewRatio']]
 
 """## Data cleaning"""
 
@@ -36,6 +36,7 @@ for i, var in enumerate(variables):
     axes[i].set_ylabel('Density')
     axes[i].set_title(f'Distribution of {var}')
 plt.tight_layout()
+plt.savefig('fig9-hist-counts.png')
 plt.show()
 
 """Check extreme values"""
@@ -101,7 +102,7 @@ plt.show()
 subset_df = filtered_df[['SubscriberCount_log', 'ViewCount_log', 'LikeCount_log', 'Duration_log', 'LikeViewRatio_log','CategoryName']]
 plot_kws = {'s': 5, 'alpha': 0.5}
 sns.pairplot(subset_df, hue='CategoryName', plot_kws=plot_kws)
-plt.savefig('fig9-scatterplot-bycategory.png')
+plt.savefig('fig10-scatterplot-bycategory.png')
 plt.show()
 
 """### Feature engineering: GLM to find the predictors for LikeCounts"""
@@ -110,20 +111,22 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
 import os
 import pickle
 
 """Generate additional feature"""
 
-filtered_df['TitleLength'] = filtered_df['VideoTitle'].apply(len)
+#filtered_df['TitleLength'] = filtered_df['VideoTitle'].apply(len)
+filtered_df['TitleLength'] = filtered_df['TitleClean'].apply(lambda x: len(str(x).split()))
 
 filtered_df.info()
 
 model_configs = [
-    {'name': 'm1-log', 'columns': ['SubscriberCount_log', 'ViewCount_log', 'Duration_log', 'TitleLength'], 'Ycol': 'LikeCount_log'},
-    {'name': 'm2-orig', 'columns': ['SubscriberCount', 'ViewCount', 'Duration', 'TitleLength'], 'Ycol': 'LikeCount'},
-    {'name': 'm3-log-category', 'columns': ['SubscriberCount', 'ViewCount', 'Duration', 'TitleLength', 'CategoryName'], 'Ycol': 'LikeCount'},
-    {'name': 'm4-orig-category', 'columns': ['CategoryName', 'SubscriberCount_log', 'ViewCount_log', 'Duration_log', 'TitleLength'], 'Ycol': 'LikeCount_log'}
+    {'name': 'm1-orig', 'columns': ['SubscriberCount', 'ViewCount', 'Duration', 'TitleLength'], 'Ycol': 'LikeCount'},
+    {'name': 'm2-orig-category', 'columns': ['SubscriberCount', 'ViewCount', 'Duration', 'TitleLength', 'CategoryName'], 'Ycol': 'LikeCount'},
+    {'name': 'm3-log', 'columns': ['SubscriberCount_log', 'ViewCount_log', 'Duration_log', 'TitleLength'], 'Ycol': 'LikeCount_log'},
+    {'name': 'm4-log-category', 'columns': ['SubscriberCount_log', 'ViewCount_log', 'Duration_log', 'TitleLength','CategoryName'], 'Ycol': 'LikeCount_log'}
 ]
 model_perform = {}
 for config in model_configs:
@@ -150,6 +153,10 @@ for config in model_configs:
         X_train_imputed = imputer.fit_transform(X_train_encoded)
         X_test_imputed = imputer.transform(X_test_encoded)
 
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train_imputed)
+        X_test_scaled = scaler.transform(X_test_imputed)
+
         model = LinearRegression()
         model.fit(X_train_imputed, y_train)
 
@@ -170,9 +177,134 @@ for config in model_configs:
         print("Features", X_train_encoded.columns.to_list())
         print("Beta", model.coef_)
         print("------------------------------------")
-
+        model_perform[config['name']] = {"Training RMSE": train_rmse,
+                                      "Training R-squared": train_r2,
+                                      "Testing RMSE": test_rmse,
+                                      "Testing R-squared": test_r2,
+                                      "Features": X_train_encoded.columns.tolist(),
+                                      "Beta": model.coef_
+                                      }
     else:
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+        
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+
+        y_train_pred = model.predict(X_train)
+        y_test_pred = model.predict(X_test)
+
+        train_rmse = mean_squared_error(y_train, y_train_pred, squared=False)
+        train_r2 = r2_score(y_train, y_train_pred)
+
+        test_rmse = mean_squared_error(y_test, y_test_pred, squared=False)
+        test_r2 = r2_score(y_test, y_test_pred)
+
+        print(config['name'])
+        print("Training RMSE:", train_rmse)
+        print("Training R-squared:", train_r2)
+        print("Testing RMSE:", test_rmse)
+        print("Testing R-squared:", test_r2)
+        print(X.columns)
+        print(model.coef_)
+        print("------------------------------------")
+        model_perform[config['name']] = {"Training RMSE": train_rmse,
+                                      "Training R-squared": train_r2,
+                                      "Testing RMSE": test_rmse,
+                                      "Testing R-squared": test_r2,
+                                      "Features": X_train.columns.tolist(),
+                                      "Beta": model.coef_
+                                      }
+    # Save the model
+    model_filename = f'{config["name"]}.pkl'
+    with open(model_filename, 'wb') as file:
+        pickle.dump(model, file)
+
+"""## Analyze feature contribution"""
+
+model_name = 'm4-log-category'
+features = model_perform[model_name]['Features']
+beta = model_perform[model_name]['Beta']
+df = pd.DataFrame({'Features': features, 'Beta': beta})
+df.to_csv('model-feature-selection')
+
+df_pos = df[df['Beta']>0].sort_values(by='Beta',ascending=False)
+print(df_pos)
+print("------------------------------------")
+df_neg = df[df['Beta']<0].sort_values(by='Beta',ascending=True)
+print(df_neg)
+
+model_configs = [
+    {'name': 'pm1-orig', 'columns': ['SubscriberCount', 'ViewCount', 'Duration', 'TitleLength'], 'Ycol': 'LikeViewRatio'},
+    {'name': 'pm2-orig-category', 'columns': ['SubscriberCount', 'ViewCount', 'Duration', 'TitleLength', 'CategoryName'], 'Ycol': 'LikeViewRatio'},
+    {'name': 'pm3-log', 'columns': ['SubscriberCount_log', 'ViewCount_log', 'Duration_log', 'TitleLength'], 'Ycol': 'LikeViewRatio_log'},
+    {'name': 'pm4-log-category', 'columns': ['SubscriberCount_log', 'ViewCount_log', 'Duration_log', 'TitleLength','CategoryName'], 'Ycol': 'LikeViewRatio_log'}
+]
+model_perform = {}
+for config in model_configs:
+    X = filtered_df[config['columns']]
+    y = filtered_df[config['Ycol']]
+    
+    if 'CategoryName' in config['columns']:
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        
+        training_categories = set(X_train['CategoryName'])
+        missing_categories = set(X_test['CategoryName']) - training_categories
+
+        for category in missing_categories:
+            X_train[f'Category_{category}'] = 0
+            X_test[f'Category_{category}'] = 0
+
+        encoded_categories_train = pd.get_dummies(X_train['CategoryName'], prefix='Category')
+        encoded_categories_test = pd.get_dummies(X_test['CategoryName'], prefix='Category')
+
+        X_train_encoded = pd.concat([X_train.drop('CategoryName', axis=1), encoded_categories_train], axis=1)
+        X_test_encoded = pd.concat([X_test.drop('CategoryName', axis=1), encoded_categories_test], axis=1)
+
+        imputer = SimpleImputer(strategy='mean')
+        X_train_imputed = imputer.fit_transform(X_train_encoded)
+        X_test_imputed = imputer.transform(X_test_encoded)
+
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train_imputed)
+        X_test_scaled = scaler.transform(X_test_imputed)
+        
+        model = LinearRegression()
+        model.fit(X_train_imputed, y_train)
+
+        y_train_pred = model.predict(X_train_imputed)
+        y_test_pred = model.predict(X_test_imputed)
+
+        train_rmse = mean_squared_error(y_train, y_train_pred, squared=False)
+        train_r2 = r2_score(y_train, y_train_pred)
+
+        test_rmse = mean_squared_error(y_test, y_test_pred, squared=False)
+        test_r2 = r2_score(y_test, y_test_pred)
+
+        print(config['name'])
+        print("Training RMSE:", train_rmse)
+        print("Training R-squared:", train_r2)
+        print("Testing RMSE:", test_rmse)
+        print("Testing R-squared:", test_r2)
+        print("Features", X_train_encoded.columns.to_list())
+        print("Beta", model.coef_)
+        print("------------------------------------")
+        model_perform[config['name']] = {"Training RMSE": train_rmse,
+                                      "Training R-squared": train_r2,
+                                      "Testing RMSE": test_rmse,
+                                      "Testing R-squared": test_r2,
+                                      "Features": X_train_encoded.columns.tolist(),
+                                      "Beta": model.coef_
+                                      }
+    else:
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
 
         model = LinearRegression()
         model.fit(X_train, y_train)
@@ -194,26 +326,23 @@ for config in model_configs:
         print(X.columns)
         print(model.coef_)
         print("------------------------------------")
-
+        model_perform[config['name']] = {"Training RMSE": train_rmse,
+                                      "Training R-squared": train_r2,
+                                      "Testing RMSE": test_rmse,
+                                      "Testing R-squared": test_r2,
+                                      "Features": X_train.columns.tolist(),
+                                      "Beta": model.coef_
+                                      }
     # Save the model
     model_filename = f'{config["name"]}.pkl'
     with open(model_filename, 'wb') as file:
         pickle.dump(model, file)
-    model_perform[config['name']] = {"Training RMSE": train_rmse,
-                                      "Training R-squared": train_r2,
-                                      "Testing RMSE": test_rmse,
-                                      "Testing R-squared": test_r2,
-                                      "Features": X_train_encoded.columns.tolist(),
-                                      "Beta": model.coef_
-                                      }
 
-"""## Analyze feature contribution"""
-
-model_name = 'm4-orig-category'
+model_name = 'pm4-log-category'
 features = model_perform[model_name]['Features']
 beta = model_perform[model_name]['Beta']
 df = pd.DataFrame({'Features': features, 'Beta': beta})
-
+df.to_csv('model-feature-selection-LikeViewRatio')
 df_pos = df[df['Beta']>0].sort_values(by='Beta',ascending=False)
 print(df_pos)
 print("------------------------------------")
