@@ -241,8 +241,21 @@ plt.show()
 
 
 ################################################
-df = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/data-formodel.csv')
+df = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/merged_data.csv')
 df.info()
+
+def wordcount(x):
+    len(x.split())
+x=df['TitleClean'][0]
+lens=[]
+for ind in range(0,df['TitleClean'].shape[0]):
+    if df['TitleClean'][ind].atype != float:
+        x = len(df['TitleClean'][ind].split())
+    else:
+        x = 0
+    lens.append(x)
+    
+df['word_count'] = df['TitleClean'].apply(lambda x: len(str(x).split()))
 
 unique_rows = df.drop_duplicates(subset=['VideoID'], keep='first')
 df_m = unique_rows[['VideoTitle', 'SubscriberCount', 'ViewCount', 'LikeCount', 'DislikeCount', 'Duration', 'LikeViewRatio']]
