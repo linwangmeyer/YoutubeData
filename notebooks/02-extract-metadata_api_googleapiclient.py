@@ -4,6 +4,9 @@ from tqdm import tqdm
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dotenv import load_dotenv
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 
 # Load API key from .env file
 load_dotenv()
@@ -21,6 +24,7 @@ video_id_list = list(set(video_ID.to_list()))
 video_ids = []
 channel_ids = []
 video_titles = []
+channel_titles = []
 category_ids = []
 view_counts = []
 like_counts = []
@@ -49,6 +53,7 @@ for video_id in video_id_list:
 
             channel_id = snippet['channelId']
             video_title = snippet['title']
+            channel_title = snippet['channelTitle']
             category_id = snippet['categoryId']
             view_count = statistics.get('viewCount', 0)
             like_count = statistics.get('likeCount', 0)
@@ -59,6 +64,7 @@ for video_id in video_id_list:
             video_ids.append(video_id)
             channel_ids.append(channel_id)
             video_titles.append(video_title)
+            channel_titles.append(channel_title)
             category_ids.append(category_id)
             view_counts.append(view_count)
             like_counts.append(like_count)
@@ -91,8 +97,9 @@ category_name_list = [category_names.get(category_id, 'N/A') for category_id in 
 data = {
     "VideoID": video_ids,
     "ChannelID": channel_ids,
-    "VideoTitle": video_titles,
     "CategoryID": category_ids,
+    "VideoTitle": video_titles,
+    "ChannelTitle": channel_titles,
     "CategoryName": category_name_list,
     "ViewCount": view_counts,
     "LikeCount": like_counts,
@@ -100,66 +107,104 @@ data = {
     "Duration": durations
 }
 
-df_meta = pd.DataFrame(data)
+df_meta = pd.DataFrame(data).reset_index()
 df_meta['Duration'] = pd.to_timedelta(df_meta['Duration']).dt.total_seconds()
-df_meta.to_csv('video_meta_data.csv')
-
-
+df_meta.to_csv('/Users/linwang/Documents/YoutubeData/data/processed/video_meta_data.csv',index=False)
 
 ################################################
-## data exploration: only for top 10 channels
-df = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/mydata.csv')
-df_recent = df[df['Year'] >= 2016]
 df_meta = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/video_meta_data.csv')
-df_merged = df_recent[['Title','Timestamp','Year','Month','Weekdays','TimeOfDay','Hour']].merge(df_meta, left_on='Title', right_on='VideoTitle', how='inner')
-df_merged = df_merged.loc[:, ~df_merged.columns.str.startswith('Unnamed')]
-df_merged.to_csv('/Users/linwang/Documents/YoutubeData/data/processed/combined_data.csv')
 
-
-# Visualizing Video Categories
-category_counts = df_merged["CategoryName"].value_counts().reset_index()
+## Video Categories
+category_counts = df_meta["CategoryName"].value_counts().reset_index()
 category_counts.columns = ["CategoryName", "count"]
 category_counts = category_counts.sort_values("count", ascending=False)
-print(category_counts)
-
 plt.figure(figsize=(10, 6))
 chart = category_counts.plot(kind='bar')
-chart.set_xticklabels(category_counts.index, rotation=45, ha='right')
+chart.set_xticklabels(category_counts['CategoryName'], rotation=45, ha='right')
 plt.xlabel('Category')
 plt.ylabel('Count')
-plt.title('Top 4 Counts of categories')
+plt.title('Top Counts of categories')
 plt.show()
 
-category_counts.plot(x="category", y="count", kind="bar", legend=False)
-plt.xlabel("Category")
-plt.ylabel("Count")
-plt.title("Video Categories Watched")
+####################################
+# Histogram of video durations
+plt.hist(df_meta['Duration'], bins=20)
+plt.xlabel('Duration (Seconds)')
+plt.ylabel('Frequency')
+plt.title('Distribution of Video Durations')
 plt.show()
 
-# Visualizing Clock Watches per Hour
-clock_df = df_merged.groupby(df_merged["Duration"]).size().reset_index(name="count")
-fig = plt.figure()
-ax = fig.add_subplot(111, polar=True)
-ax.plot(np.radians(clock_df["time"] * 15), clock_df["count"])
-ax.set_xticks(np.radians(np.arange(0, 360, 30)))
-ax.set_xticklabels(["12AM", "3AM", "6AM", "9AM", "12PM", "3PM", "6PM", "9PM"])
-ax.set_title("Time of Day for Watching YouTube")
-ax.grid(True)
+# check extreme values
+df_extreme = df_meta[df_meta['Duration']>100000]
+print(df_extreme[['VideoTitle','Duration']])
+
+# visualize only non-extreme values
+duration_range = (0, 1000)
+plt.hist(df_meta['Duration'], bins=20, range=duration_range)
+plt.xlabel('Duration (Seconds)')
+plt.ylabel('Frequency')
+plt.title('Distribution of Video Durations')
 plt.show()
 
-# Most Re-Watched Videos
-most_rewatched = df_merged.groupby(["Year", "VideoTitle"]).size().reset_index(name="count")
-most_rewatched = most_rewatched.sort_values(["Year", "count"], ascending=[True, False])
-most_rewatched = most_rewatched.groupby("Year").head(5)
-print(most_rewatched)
+####################################
+# Relationship between variables
+fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 5))
+# Scatter plot for 'ViewCount' vs. 'LikeCount'
+axes[0].scatter(df_meta['ViewCount'], df_meta['LikeCount'])
+axes[0].set_title('View Count vs. Like Count')
+axes[0].set_xlabel('View Count')
+axes[0].set_ylabel('Like Count')
+# Scatter plot for 'ViewCount' vs. 'Duration'
+axes[1].scatter(df_meta['ViewCount'], df_meta['Duration'])
+axes[1].set_title('View Count vs. Duration')
+axes[1].set_xlabel('View Count')
+axes[1].set_ylabel('Duration')
+# Scatter plot for 'LikeCount' vs. 'Duration'
+axes[2].scatter(df_meta['LikeCount'], df_meta['Duration'])
+axes[2].set_title('Like Count vs. Duration')
+axes[2].set_xlabel('Like Count')
+axes[2].set_ylabel('Duration')
+plt.tight_layout()
+plt.show()
 
-# Word Cloud for Most frequent Words
-search_words = df_merged["VideoTitle"].str.lower().str.split()
-search_words = [word for sublist in search_words for word in sublist]
-word_counts = dict(Counter(search_words))
+#### Scatter plot, color coded by CategoryName
+# Scatter plot of ViewCount vs LikeCount, color coded by CategoryName
+plotdata = df_meta[~df_meta['CategoryName'].isin(['Music','Education'])]
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=plotdata, x='ViewCount', y='LikeCount', hue='CategoryName')
+plt.xlabel('View Count')
+plt.ylabel('Like Count')
+plt.title('Relationship between View Count and Like Count (Color coded by Category)')
+plt.xlim(0,500000000)
+plt.show()
 
-mask = np.array(Image.open("cloud_mask.png"))
-wordcloud = WordCloud(background_color="white", mask=mask).generate_from_frequencies(word_counts)
-plt.imshow(wordcloud, interpolation="bilinear")
-plt.axis("off")
+# Scatter plot of Duration vs LikeCount, color coded by CategoryName
+df_normal = df_meta[df_meta['Duration']<=100000]
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=df_normal, x='Duration', y='LikeCount', hue='CategoryName')
+plt.xlabel('Duration')
+plt.ylabel('Like Count')
+plt.title('Relationship between Duration and Like Count (Color coded by Category)')
+plt.show()
+
+# Scatter plot of Duration vs ViewCount, color coded by CategoryName
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=df_normal, x='Duration', y='ViewCount', hue='CategoryName')
+plt.xlabel('Duration')
+plt.ylabel('Like Count')
+plt.title('Relationship between Duration and View Count (Color coded by Category)')
+plt.show()
+
+###################################
+df_meta['Ratio'] = df_meta['LikeCount'] / df_meta['ViewCount']
+# Group the DataFrame by CategoryName and calculate the mean ratio
+category_ratios = df_meta.groupby('CategoryName')['Ratio'].mean()
+sorted_ratios = category_ratios.sort_values(ascending=False)
+# Plotting the ratio differences across categories
+plt.figure(figsize=(10, 6))
+sorted_ratios.plot(kind='bar')
+plt.xlabel('Category')
+plt.ylabel('Mean Ratio')
+plt.title('Ratio Differences Across Categories')
+plt.xticks(rotation=45,ha='right')
 plt.show()

@@ -137,7 +137,7 @@ df_meta.to_csv('video_meta_data')
 
 ################################################
 ## data exploration: only for top 10 channels
-df = pd.read_csv('mydata.csv')
+df = pd.read_csv('/Users/linwang/Documents/YoutubeData/data/processed/mydata.csv')
 top10_channels = df.query("Year >= 2016")['Channel'].dropna().value_counts().head(10).index.tolist()
 df_top10 = df[df['Channel'].isin(top10_channels)]
 df_top10['VideoID'] = df_top10['Video URL'].str.split('v=').str[1]
