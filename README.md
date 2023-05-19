@@ -123,17 +123,3 @@
 ### Summary of the findings
 
 Videos in the People & Blogs, Sports, Education, and How-to & Style categories have a higher likability, receiving a greater proportion of likes relative to the total views. In contrast, the Film & Animation, Travel & Events, and Autos & Vehicles categories exhibit lower likability, with a smaller percentage of likes compared to the total views. Factors such as the number of subscribers, video duration, and video title length do not strongly predict the likability of videos in terms of the percentage of likes received.
-
-## Business insights based on my personal data and Youtube metadata:
-
-**Enhancing Likability and Engagement with Targeted Content Strategy**
-
-- Videos in the People & Blogs, Sports, Education, and How-to & Style categories have shown higher likability, receiving a greater proportion of likes relative to total views.
-- To capitalize on these likability trends, consider focusing content strategy on creating compelling educational content within these categories.
-- By aligning the content with viewer preferences, we can increase engagement and attract a broader audience.
-
-**Personalization and Timely Promotions for Optimal Viewer Experience**
-
-- Implementing personalized content recommendations based on viewer preferences and viewing habits can significantly enhance the viewer experience.
-- Additionally, schedule targeted promotions during specific timeframes to maximize viewership and engagement.
-- By delivering content tailored to the right audience at the right time, we can increase likability and viewer satisfaction.
